@@ -6,3 +6,15 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/* 方案B：代码块级滚动 */
+.cm-codeBlock-startLine ~ .cm-line:not(.cm-codeBlock-endLine) {
+  width: 400px;
+  height: 200px;
+  resize: both; /* 允许调整大小 */
+  overflow: auto; /* 自动显示滚动条 */
+  font-family: monospace;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
