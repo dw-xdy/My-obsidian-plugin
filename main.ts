@@ -4,11 +4,15 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 interface MyPluginSettings {
     mySetting: string;
+    language: string;  // 添加语言设置字段
 }
 
+
 const DEFAULT_SETTINGS: MyPluginSettings = {
-    mySetting: 'default'
+    mySetting: 'default',
+    language: 'zh'  // 默认中文
 }
+
 
 export default class MyPlugin extends Plugin {
     settings: MyPluginSettings;
@@ -107,6 +111,10 @@ class SampleModal extends Modal {
     }
 }
 
+
+
+
+
 class SampleSettingTab extends PluginSettingTab {
     plugin: MyPlugin;
 
@@ -120,15 +128,62 @@ class SampleSettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
+        // 定义文本资源的类型
+        interface TextResources {
+            [key: string]: {
+                zh: string;
+                en: string;
+                ja: string;
+            };
+        }
+
+        // 设置界面文本
+        const settingTexts: TextResources = {
+            languageSetting: {
+                zh: '语言设置',
+                en: 'Language Settings',
+                ja: '言語設定'
+            },
+            languageDesc: {
+                zh: '设置插件显示语言',
+                en: 'Set plugin display language',
+                ja: 'プラグインの表示言語を設定'
+            }
+        };
+
+        // 语言选择下拉框 - 使用动态文本
         new Setting(containerEl)
-                .setName('设置 #1')
-                .setDesc('这是一个秘密')
-                .addText(text => text
-                        .setPlaceholder('输入你的秘密')
-                        .setValue(this.plugin.settings.mySetting)
-                        .onChange(async (value) => {
-                            this.plugin.settings.mySetting = value;
+                .setName(this.getSettingText('languageSetting', settingTexts))
+                .setDesc(this.getSettingText('languageDesc', settingTexts))
+                .addDropdown(dropdown => dropdown
+                        .addOption('zh', '中文')
+                        .addOption('en', 'English')
+                        .addOption('ja', '日本語')
+                        .setValue(this.plugin.settings.language)
+                        .onChange(async (value: string) => {
+                            this.plugin.settings.language = value;
                             await this.plugin.saveSettings();
+
+                            // 显示语言切换成功的提示
+                            const noticeTexts: TextResources = {
+                                languageChanged: {
+                                    zh: '语言设置已更新',
+                                    en: 'Language settings updated',
+                                    ja: '言語設定が更新されました'
+                                }
+                            };
+                            const noticeMessage = this.getSettingText('languageChanged', noticeTexts);
+                            new Notice(noticeMessage);
+
+                            // 刷新设置界面以应用新语言
+                            this.display();
                         }));
     }
+
+    // 统一的文本获取方法
+    getSettingText(key: string, texts: { [key: string]: { zh: string; en: string; ja: string } }): string {
+        const lang = this.plugin.settings.language as 'zh' | 'en' | 'ja';
+        return texts[key]?.[lang] || texts[key]?.zh || key;
+    }
 }
+
