@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@codemirror/view": "^6.38.8"
+  },
   "devDependencies": {
     "typescript": "^5.5.3"
   },
